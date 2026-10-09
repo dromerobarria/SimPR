@@ -71,7 +71,7 @@ final class RunPanelController {
 struct RunStatusView: View {
     @Environment(AppModel.self) private var model
     @State private var selection: String?
-    @State private var remember = true
+    @State private var remember = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -124,14 +124,26 @@ struct RunStatusView: View {
 
     private func picker(record: BuildRecord, candidates: [SimTarget], suggested: SimTarget?) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Choose a simulator").font(.callout)
+            if model.xcodes.count > 1 {
+                Picker("Xcode", selection: Binding(
+                    get: { model.activeDeveloperDir ?? "" },
+                    set: { dir in
+                        selection = nil
+                        model.switchXcodeAndRetry(dir)
+                    }
+                )) {
+                    if model.activeDeveloperDir == nil { Text("Selected with xcode-select").tag("") }
+                    ForEach(model.xcodes, id: \.developerDir) { xcode in
+                        Text(xcode.displayName + (xcode.isBeta ? " — beta" : "")).tag(xcode.developerDir)
+                    }
+                }
+            }
             Picker("Simulator", selection: Binding(get: { selection ?? suggested?.id }, set: { selection = $0 })) {
                 ForEach(candidates) { target in
                     Text(target.displayName + (target.device.isBooted ? " — booted" : "")).tag(Optional(target.id))
                 }
             }
-            .labelsHidden()
-            Toggle("Use this simulator next time", isOn: $remember)
+            Toggle("Use this simulator next time (don't ask again)", isOn: $remember)
             HStack {
                 Spacer()
                 Button("Cancel") { model.cancelRun() }

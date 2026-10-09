@@ -19,10 +19,18 @@ struct MenuContent: View {
                 Text("No builds yet. Click “Run in iOS Simulator” on a pull request.")
             }
             ForEach(model.recent) { record in
-                Button {
+                let label = "\(record.appName) · \(record.repo.name)\(record.prNumber.map { " #\($0)" } ?? "") · \(record.shortSHA)"
+                Menu(label) {
+                    Button("Run again") { model.run(record) }
+                    Menu("Run on…") {
+                        let compatible = Compatibility.compatibleTargets(model.targets, minimumOS: record.minimumOSVersion, architectures: record.architectures)
+                        if compatible.isEmpty { Text("No compatible simulators") }
+                        ForEach(compatible) { target in
+                            Button(target.displayName) { model.run(record, deviceUDID: target.device.udid) }
+                        }
+                    }
+                } primaryAction: {
                     model.run(record)
-                } label: {
-                    Text("Run again: \(record.appName) · \(record.repo.name)\(record.prNumber.map { " #\($0)" } ?? "") · \(record.shortSHA)")
                 }
             }
         }
@@ -45,6 +53,21 @@ struct MenuContent: View {
             .pickerStyle(.inline)
             Divider()
             Button("Refresh Simulators") { Task { await model.refreshSimulators() } }
+        }
+
+        if model.xcodes.count > 1 {
+            Menu("Xcode: \(model.activeXcode?.displayName ?? "xcode-select")") {
+                Picker("Xcode", selection: Binding(
+                    get: { preferences.developerDir },
+                    set: { dir in Task { await model.selectXcode(dir) } }
+                )) {
+                    Text("Automatic (\(XcodeLocator.sorted(model.xcodes).first?.displayName ?? "xcode-select"))").tag("")
+                    ForEach(model.xcodes, id: \.developerDir) { xcode in
+                        Text(xcode.displayName + (xcode.isBeta ? " — beta" : "")).tag(xcode.developerDir)
+                    }
+                }
+                .pickerStyle(.inline)
+            }
         }
 
         Toggle("Reset App Data Before Launch", isOn: $preferences.resetAppData)

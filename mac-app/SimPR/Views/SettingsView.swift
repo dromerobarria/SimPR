@@ -29,13 +29,18 @@ private struct GeneralSettings: View {
             }
             Toggle("Reset app data before launch (uninstall first)", isOn: $preferences.resetAppData)
             Toggle("Notify when a build is running", isOn: $preferences.notifyWhenDone)
-            Picker("Xcode", selection: $preferences.developerDir) {
-                Text("Selected with xcode-select").tag("")
-                ForEach(XcodeLocator.installedXcodes(), id: \.developerDir) { xcode in
+            Picker("Xcode", selection: Binding(
+                get: { preferences.developerDir },
+                set: { dir in Task { await model.selectXcode(dir) } }
+            )) {
+                Text("Automatic").tag("")
+                ForEach(model.xcodes, id: \.developerDir) { xcode in
                     Text(xcode.displayName + (xcode.isBeta ? " — beta" : "")).tag(xcode.developerDir)
                 }
             }
-            .onChange(of: preferences.developerDir) { Task { await model.refreshSimulators() } }
+            if let xcode = model.activeXcode {
+                LabeledContent("Xcode in use", value: xcode.displayName)
+            }
         }
         .formStyle(.grouped)
         .task { await model.refreshSimulators() }

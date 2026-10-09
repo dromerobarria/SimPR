@@ -31,6 +31,9 @@ final class AppModel {
     private(set) var recent: [BuildRecord] = []
     private(set) var totalSize: Int64 = 0
     private(set) var targets: [SimTarget] = []
+    private(set) var xcodes: [XcodeLocator.Xcode] = XcodeLocator.installedXcodes()
+    /// The Xcode actually in use (the preference, or the automatic choice).
+    private(set) var activeDeveloperDir: String?
     private(set) var simulatorError: String?
     var runState: RunState?
 
@@ -68,7 +71,19 @@ final class AppModel {
         totalSize = await library.totalSize()
     }
 
+    var activeXcode: XcodeLocator.Xcode? {
+        xcodes.first { $0.developerDir == activeDeveloperDir }
+    }
+
+    /// Switches Xcode (empty means automatic) and reloads its simulators.
+    func selectXcode(_ developerDir: String) async {
+        preferences.developerDir = developerDir
+        await refreshSimulators()
+    }
+
     func refreshSimulators() async {
+        xcodes = XcodeLocator.installedXcodes()
+        activeDeveloperDir = await XcodeLocator.developerDir(preferred: preferences.developerDir)
         let sim = await simulator()
         do {
             targets = SimctlParser.iOSTargets(devices: try await sim.devices(), runtimes: try await sim.runtimes())
@@ -216,9 +231,22 @@ final class AppModel {
         "\(record.repo.fullName)\(record.prNumber.map { " #\($0)" } ?? "") · \(record.shortSHA)"
     }
 
+    private typealias RunBody = @Sendable (RunPipeline, RunOptions, @escaping @Sendable (RunStage) -> Void) async throws -> RunOutcome
+    private var lastRun: (title: String, subtitle: String, rebuildURL: URL?, body: RunBody)?
+
+    /// Re-runs the current build after switching Xcode from the run panel.
+    func switchXcodeAndRetry(_ developerDir: String) {
+        Task {
+            await selectXcode(developerDir)
+            guard let last = lastRun else { return }
+            start(title: last.title, subtitle: last.subtitle, rebuildURL: last.rebuildURL, last.body)
+        }
+    }
+
     private func start(title: String, subtitle: String, rebuildURL: URL?, deviceUDID: String? = nil,
-                       _ body: @escaping @Sendable (RunPipeline, RunOptions, @escaping @Sendable (RunStage) -> Void) async throws -> RunOutcome) {
+                       _ body: @escaping RunBody) {
         runTask?.cancel()
+        lastRun = (title, subtitle, rebuildURL, body)
         runState = RunState(title: title, subtitle: subtitle, phase: .working(.checkingBuild), rebuildURL: rebuildURL)
         let options = RunOptions(deviceUDID: deviceUDID, preferredUDID: preferences.preferredDeviceUDID, resetAppData: preferences.resetAppData)
         runTask = Task {
@@ -229,7 +257,6 @@ final class AppModel {
                         if case .working = self.runState?.phase { self.runState?.phase = .working(stage) }
                     }
                 }
-                if preferences.preferredDeviceUDID == nil { preferences.preferredDeviceUDID = outcome.target.device.udid }
                 runState?.phase = .finished("Running on \(outcome.target.displayName)")
                 notify(title: "\(outcome.record.appName) is running", body: "\(subtitle) on \(outcome.target.device.name)")
                 await reloadLibrary()
