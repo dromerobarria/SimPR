@@ -113,3 +113,52 @@ struct CompatibilityTests {
         #expect(Compatibility.suggestedTarget(onlyNew)?.device.isIPhone == true)
     }
 }
+
+@Suite("Xcode selection and Simulator window")
+struct XcodeTests {
+    func xcode(_ name: String, _ version: String?, beta: Bool = false) -> XcodeLocator.Xcode {
+        .init(url: URL(fileURLWithPath: "/Applications/\(name).app"), version: version.flatMap(OSVersion.init), isBeta: beta)
+    }
+
+    @Test func prefersNewestReleaseOverBetasAndNames() {
+        let sorted = XcodeLocator.sorted([
+            xcode("Xcode-27.1.0-Beta", "27.1", beta: true),
+            xcode("Xcode-26.6.0", "26.6"),
+            xcode("Xcode-9", "9.4"),
+            xcode("Xcode", nil),
+        ])
+        #expect(sorted.map(\.url.lastPathComponent) == ["Xcode-26.6.0.app", "Xcode-9.app", "Xcode.app", "Xcode-27.1.0-Beta.app"])
+        #expect(sorted[0].developerDir == "/Applications/Xcode-26.6.0.app/Contents/Developer")
+    }
+
+    final class RecordingRunner: ProcessRunning, @unchecked Sendable {
+        private let lock = NSLock()
+        private var _calls: [[String]] = []
+        let succeedOn: (([String]) -> Bool)
+        init(succeedOn: @escaping ([String]) -> Bool) { self.succeedOn = succeedOn }
+        var calls: [[String]] { lock.withLock { _calls } }
+        func run(_ executable: URL, _ arguments: [String], environment: [String: String]?) async throws -> ProcessResult {
+            lock.withLock { _calls.append(arguments) }
+            return ProcessResult(status: succeedOn(arguments) ? 0 : 1, stdout: "", stderr: "")
+        }
+    }
+
+    @Test func fallsBackToTheSimulatorBundleID() async throws {
+        // A developer dir without Simulator.app (like Xcode 27 betas).
+        let dir = Fixture.tempDir().appendingPathComponent("Xcode-Beta.app/Contents/Developer")
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let runner = RecordingRunner { $0.first == "-b" }
+        try await Simctl(runner: runner, developerDir: dir.path).openSimulatorApp(focusing: "UDID")
+        #expect(runner.calls == [["-b", "com.apple.iphonesimulator", "--args", "-CurrentDeviceUDID", "UDID"]])
+    }
+
+    @Test func triesDeviceHubAndNeverFailsTheRun() async throws {
+        let app = Fixture.tempDir().appendingPathComponent("Xcode-Beta.app/Contents")
+        try FileManager.default.createDirectory(at: app.appendingPathComponent("Developer"), withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: app.appendingPathComponent("Applications/DeviceHub.app"), withIntermediateDirectories: true)
+        let runner = RecordingRunner { _ in false }
+        try await Simctl(runner: runner, developerDir: app.appendingPathComponent("Developer").path).openSimulatorApp(focusing: "UDID")
+        #expect(runner.calls.count == 2)
+        #expect(runner.calls.last?.last?.hasSuffix("DeviceHub.app") == true)
+    }
+}

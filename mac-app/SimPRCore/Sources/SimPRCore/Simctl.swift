@@ -156,13 +156,31 @@ public struct Simctl: SimulatorControlling {
         _ = try await simctl(["bootstatus", udid, "-b"])
     }
 
+    /// Brings the Simulator window up on the device. Xcode 27 betas replace Simulator.app with
+    /// DeviceHub, so this tries, in order: the selected Xcode's Simulator.app, any Simulator.app
+    /// Launch Services knows (by bundle ID), then DeviceHub. It never fails the run: the app is
+    /// installed and launched on the booted device either way.
     public func openSimulatorApp(focusing udid: String) async throws {
-        var args = ["-a", "Simulator", "--args", "-CurrentDeviceUDID", udid]
+        let focus = ["--args", "-CurrentDeviceUDID", udid]
+        var attempts: [[String]] = []
         if let developerDir {
-            args = ["-a", URL(fileURLWithPath: developerDir).appendingPathComponent("Applications/Simulator.app").path,
-                    "--args", "-CurrentDeviceUDID", udid]
+            let simulator = URL(fileURLWithPath: developerDir).appendingPathComponent("Applications/Simulator.app")
+            if FileManager.default.fileExists(atPath: simulator.path) { attempts.append(["-a", simulator.path] + focus) }
         }
-        _ = try await runner.check(Tools.open, args)
+        attempts.append(["-b", Self.simulatorBundleID] + focus)
+        if let deviceHub = Self.deviceHub(developerDir: developerDir) { attempts.append(["-a", deviceHub.path]) }
+        for args in attempts {
+            if let result = try? await runner.run(Tools.open, args), result.succeeded { return }
+        }
+    }
+
+    static let simulatorBundleID = "com.apple.iphonesimulator"
+
+    static func deviceHub(developerDir: String?, fileManager: FileManager = .default) -> URL? {
+        guard let developerDir else { return nil }
+        // <Xcode>.app/Contents/Developer -> <Xcode>.app/Contents/Applications/DeviceHub.app
+        let url = URL(fileURLWithPath: developerDir).deletingLastPathComponent().appendingPathComponent("Applications/DeviceHub.app")
+        return fileManager.fileExists(atPath: url.path) ? url : nil
     }
 
     public func uninstall(_ udid: String, bundleID: String) async throws {
@@ -195,13 +213,43 @@ public enum SimulatorError: Error, LocalizedError, Equatable {
 
 /// Finds installed Xcode apps, for when xcode-select points at the Command Line Tools.
 public enum XcodeLocator {
-    public static func installedXcodes(fileManager: FileManager = .default) -> [URL] {
+    public struct Xcode: Equatable, Sendable {
+        public var url: URL
+        public var version: OSVersion?
+        public var isBeta: Bool
+
+        public var developerDir: String { url.appendingPathComponent("Contents/Developer").path }
+        public var displayName: String {
+            url.deletingPathExtension().lastPathComponent + (version.map { " (\($0))" } ?? "")
+        }
+    }
+
+    /// Release versions first, newest first; betas after them. Names don't decide:
+    /// "Xcode-27.1.0-Beta" must not win over "Xcode-26.6.0".
+    public static func sorted(_ xcodes: [Xcode]) -> [Xcode] {
+        xcodes.sorted { a, b in
+            if a.isBeta != b.isBeta { return !a.isBeta }
+            switch (a.version, b.version) {
+            case let (va?, vb?) where va != vb: return va > vb
+            case (.some, nil): return true
+            case (nil, .some): return false
+            default: return a.url.lastPathComponent < b.url.lastPathComponent
+            }
+        }
+    }
+
+    public static func installedXcodes(fileManager: FileManager = .default) -> [Xcode] {
         let apps = URL(fileURLWithPath: "/Applications")
         let entries = (try? fileManager.contentsOfDirectory(at: apps, includingPropertiesForKeys: nil)) ?? []
-        return entries
+        let found = entries
             .filter { $0.lastPathComponent.hasPrefix("Xcode") && $0.pathExtension == "app" }
             .filter { fileManager.fileExists(atPath: $0.appendingPathComponent("Contents/Developer/usr/bin/xcodebuild").path) }
-            .sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedDescending }
+            .map { url -> Xcode in
+                let info = NSDictionary(contentsOf: url.appendingPathComponent("Contents/Info.plist"))
+                let version = (info?["CFBundleShortVersionString"] as? String).flatMap(OSVersion.init)
+                return Xcode(url: url, version: version, isBeta: url.lastPathComponent.lowercased().contains("beta"))
+            }
+        return sorted(found)
     }
 
     /// The developer dir to pass as DEVELOPER_DIR, or nil when xcode-select already points at an Xcode.
@@ -209,6 +257,6 @@ public enum XcodeLocator {
         if let preferred, !preferred.isEmpty { return preferred }
         let selected = (try? await runner.run(Tools.xcodeSelect, ["-p"]))?.stdout.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if selected.contains(".app/Contents/Developer") { return nil }
-        return installedXcodes().first?.appendingPathComponent("Contents/Developer").path
+        return installedXcodes().first?.developerDir
     }
 }

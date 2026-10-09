@@ -31,8 +31,8 @@ private struct GeneralSettings: View {
             Toggle("Notify when a build is running", isOn: $preferences.notifyWhenDone)
             Picker("Xcode", selection: $preferences.developerDir) {
                 Text("Selected with xcode-select").tag("")
-                ForEach(XcodeLocator.installedXcodes(), id: \.path) { xcode in
-                    Text(xcode.lastPathComponent).tag(xcode.appendingPathComponent("Contents/Developer").path)
+                ForEach(XcodeLocator.installedXcodes(), id: \.developerDir) { xcode in
+                    Text(xcode.displayName + (xcode.isBeta ? " — beta" : "")).tag(xcode.developerDir)
                 }
             }
             .onChange(of: preferences.developerDir) { Task { await model.refreshSimulators() } }
