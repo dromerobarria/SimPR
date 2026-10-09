@@ -263,7 +263,8 @@ async function cmdPackage() {
   const zipPath = join(outDir, artifactName(pr, contentKey));
   rmSync(zipPath, { force: true });
   // --keepParent keeps the folder at the zip root; ditto preserves symlinks and the executable bit.
-  run('ditto', ['-c', '-k', '--sequesterRsrc', '--keepParent', staging, zipPath]);
+  // Resource forks and extended attributes aren't needed and would add __MACOSX clutter.
+  run('ditto', ['-c', '-k', '--norsrc', '--noextattr', '--noqtn', '--noacl', '--keepParent', staging, zipPath]);
 
   const manifestPath = join(outDir, 'simpr.json');
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
