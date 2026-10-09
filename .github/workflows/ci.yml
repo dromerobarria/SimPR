@@ -12,6 +12,7 @@ jobs:
   action:
     name: Action tests
     runs-on: macos-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - run: node --version
@@ -21,6 +22,7 @@ jobs:
   web:
     name: Redirect page tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - run: npm test
@@ -29,14 +31,33 @@ jobs:
   mac-app:
     name: Mac app tests
     runs-on: macos-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: mac-app/SimPRCore
     steps:
       - uses: actions/checkout@v7
-      - run: swift test
-        working-directory: mac-app/SimPRCore
+      - run: xcodebuild -version && swift --version && sysctl -n hw.ncpu
+      - run: swift build --build-tests
+      - name: Run tests, one suite at a time
+        run: |
+          status=0
+          for suite in RunRequestTests ManifestTests OSVersionTests DeviceFlowTests ProcessRunnerTests \
+                       SimctlParserTests CompatibilityTests LibraryTests EvictionPolicyTests LibraryQueryTests PipelineTests; do
+            echo "::group::$suite"
+            # perl's alarm gives each suite a hard 3-minute limit.
+            if ! perl -e 'alarm 180; exec @ARGV' swift test --skip-build --disable-xctest --filter "$suite"; then
+              echo "::error::$suite failed or timed out"
+              status=1
+            fi
+            echo "::endgroup::"
+          done
+          exit $status
 
   lint:
     name: Lint workflows and scripts
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - name: actionlint
