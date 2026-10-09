@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>SimPR</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <main>
+    <header class="brand">
+      <img src="icon.svg" alt="" width="28" height="28">
+      <span>SimPR</span>
+    </header>
+
+    <!-- Shown while trying simpr:// -->
+    <section id="opening" class="card" hidden>
+      <div class="spinner" aria-hidden="true"></div>
+      <h1>Opening in SimPR…</h1>
+      <p class="build-title" data-field="title"></p>
+      <p class="meta" data-field="meta"></p>
+      <p class="muted">If your browser asks, allow it to open SimPR.</p>
+    </section>
+
+    <!-- Shown when the app took the link -->
+    <section id="opened" class="card" hidden>
+      <h1>Opened in SimPR</h1>
+      <p class="build-title" data-field="title"></p>
+      <p class="muted">The build downloads and launches in Simulator. You can close this tab.</p>
+      <div class="actions">
+        <button type="button" class="secondary" data-action="retry">Open again</button>
+        <button type="button" class="link" data-action="show-fallback">Run without the app</button>
+      </div>
+    </section>
+
+    <!-- No-app path -->
+    <section id="fallback" class="card" hidden>
+      <h1>Run this build in Simulator</h1>
+      <p class="build-title" data-field="title"></p>
+      <p class="meta" data-field="meta"></p>
+
+      <p class="notice" id="not-mac" hidden>iOS Simulator only runs on a Mac with Xcode. Open this page on your Mac.</p>
+
+      <a class="button primary" id="download" href="#" rel="noopener noreferrer">⬇ Download build</a>
+      <p class="muted small">You need to be signed in to GitHub with access to this repository.</p>
+
+      <ol class="steps">
+        <li><strong>Download the build.</strong> Safari unzips it automatically. In other browsers, double-click the downloaded zip.</li>
+        <li><strong>Open Simulator.</strong> Run <code>open -a Simulator</code> in Terminal, or in Xcode choose <em>Xcode › Open Developer Tool › Simulator</em>.</li>
+        <li><strong>Drag <code data-field="appfile">the .app</code> onto the Simulator window.</strong> Simulator installs and launches it.</li>
+      </ol>
+      <p class="notice">Double-clicking the <code>.app</code> does <strong>not</strong> work. It's an iOS Simulator build, and macOS can't run it directly.</p>
+
+      <details id="terminal" class="terminal">
+        <summary>Prefer Terminal? One command with the GitHub CLI</summary>
+        <p class="muted small">Needs the <a href="https://cli.github.com" rel="noopener noreferrer">GitHub CLI</a>, signed in with <code>gh auth login</code>.</p>
+        <div class="code">
+          <pre><code id="command"></code></pre>
+          <button type="button" class="copy" data-action="copy">Copy</button>
+        </div>
+      </details>
+
+      <div class="get-app">
+        <h2>Get the SimPR Mac app for one-click runs</h2>
+        <p class="muted">It downloads, installs and launches builds for you, checks iOS and architecture compatibility, and keeps a local library of every build you've run, even after GitHub deletes them.</p>
+        <div class="code small-code">
+          <pre><code id="brew"></code></pre>
+          <button type="button" class="copy" data-action="copy-brew">Copy</button>
+        </div>
+        <div class="actions">
+          <a class="button secondary" id="releases" href="#" rel="noopener noreferrer">Download for Mac</a>
+          <button type="button" class="secondary" data-action="retry">Try again</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bad or missing parameters -->
+    <section id="invalid" class="card" hidden>
+      <h1>This link isn't valid</h1>
+      <p class="muted">The SimPR link is incomplete or was changed. Open the button from the pull request comment again.</p>
+      <ul id="errors" class="errors"></ul>
+    </section>
+
+    <!-- No parameters: plain landing page -->
+    <section id="home" class="card" hidden>
+      <h1>Run pull requests in iOS Simulator</h1>
+      <p>SimPR adds a <em>Run in iOS Simulator</em> button to iOS pull requests on GitHub. CI builds the app; you click the button, and it opens in Simulator on your Mac.</p>
+      <p><img src="badge.svg" alt="Run in iOS Simulator" width="220" height="36"></p>
+      <div class="actions">
+        <a class="button primary" id="home-docs" href="#" rel="noopener noreferrer">Set it up</a>
+        <a class="button secondary" id="home-releases" href="#" rel="noopener noreferrer">Get the Mac app</a>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <a href="https://github.com/dromerobarria/SimPR" rel="noopener noreferrer">SimPR</a> is open source (MIT).
+  </footer>
+</body>
+</html>

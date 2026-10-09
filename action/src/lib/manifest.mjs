@@ -34,7 +34,7 @@ export function validateManifest(m) {
   if (m.commitSha && !SHA_RE.test(m.commitSha)) problems.push('commitSha must be a full 40-character SHA');
   if (m.minimumOSVersion && !VERSION_RE.test(m.minimumOSVersion)) problems.push('minimumOSVersion is invalid');
   if (m.appBundleName && !/^[^/]+\.app$/.test(m.appBundleName)) problems.push('appBundleName must end in .app');
-  if (m.folderName && !/^[A-Za-z0-9._-]+$/.test(m.folderName)) problems.push('folderName is invalid');
+  if (m.folderName && (!/^[A-Za-z0-9._-]+$/.test(m.folderName) || /^\.+$/.test(m.folderName))) problems.push('folderName is invalid');
   if (!Array.isArray(m.architectures) || m.architectures.length === 0 || !m.architectures.every((a) => ARCHS.has(a))) {
     problems.push('architectures must list arm64 and/or x86_64');
   }

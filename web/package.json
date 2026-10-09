@@ -1,0 +1,11 @@
+{
+  "name": "simpr-web",
+  "private": true,
+  "type": "module",
+  "description": "SimPR redirect page. Static files in public/, no build step.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "serve": "python3 -m http.server 8787 --directory public"
+  }
+}
