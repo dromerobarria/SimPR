@@ -20,6 +20,7 @@ import { join, basename, resolve, dirname } from 'node:path';
 import { computeContentKey, parseList } from './lib/contentKey.mjs';
 import { artifactName, assertPrNumber, parseArtifactName } from './lib/naming.mjs';
 import { createClient, repoApi } from './lib/github.mjs';
+import { githubArtifactsStorage } from './lib/storage.mjs';
 import { validateManifest, folderNameFor, MANIFEST_SCHEMA_VERSION, SHA_RE } from './lib/manifest.mjs';
 import {
   renderReadyComment,
@@ -77,7 +78,9 @@ function tryRun(cmd, args, options = {}) {
 function api() {
   const token = required('SIMPR_TOKEN');
   const client = createClient({ token, apiUrl: env.GITHUB_API_URL || 'https://api.github.com' });
-  return repoApi(client, required('GITHUB_REPOSITORY'));
+  const repo = repoApi(client, required('GITHUB_REPOSITORY'));
+  repo.storage = githubArtifactsStorage(repo);
+  return repo;
 }
 
 function serverUrl() {
@@ -106,7 +109,7 @@ function buildSettings() {
 
 /** Downloads an artifact zip (served raw because it was uploaded with archive: false). */
 async function downloadArtifact(repo, artifactId, dest) {
-  const location = await repo.artifactDownloadUrl(artifactId);
+  const location = await repo.storage.downloadUrl(artifactId);
   // The signed URL needs no token; never forward the GitHub token to it.
   const res = await fetch(location);
   if (!res.ok) throw new Error(`Downloading artifact ${artifactId} failed with ${res.status}`);
@@ -169,7 +172,7 @@ async function cmdKey() {
 async function cmdFindExisting() {
   const name = required('SIMPR_ARTIFACT_NAME');
   const repo = api();
-  const live = (await repo.findArtifactsByName(name))
+  const live = (await repo.storage.findByName(name))
     .filter((a) => !a.expired && a.workflow_run?.id)
     .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
 
@@ -353,10 +356,10 @@ async function publish(meta, repo) {
   setOutput('comment-url', comment.html_url);
 
   const keep = intEnv('SIMPR_KEEP_BUILDS', 1) || 1;
-  const all = await repo.listArtifacts({ maxPages: intEnv('SIMPR_MAX_PAGES', 10) });
+  const all = await repo.storage.list({ maxPages: intEnv('SIMPR_MAX_PAGES', 10) });
   const superseded = selectSuperseded(all, { pr, keep, currentId: artifact.id });
   for (const a of superseded) {
-    const deleted = await repo.deleteArtifact(a.id);
+    const deleted = await repo.storage.delete(a.id);
     log(`${deleted ? 'Deleted' : 'Already gone:'} superseded build ${a.name} (artifact ${a.id})`);
   }
 
@@ -387,7 +390,7 @@ async function cmdPublishFromRun() {
     return;
   }
 
-  const metaArtifact = (await repo.listRunArtifacts(runId)).find((a) => a.name === 'simpr-meta.json' && !a.expired);
+  const metaArtifact = (await repo.storage.listForRun(runId)).find((a) => a.name === 'simpr-meta.json' && !a.expired);
   if (!metaArtifact) {
     log(`Run ${runId} has no simpr-meta.json; nothing to publish.`);
     return;
@@ -416,7 +419,7 @@ async function cmdPublishFromRun() {
     return;
   }
   // The build artifact must belong to this repo and to the run (or to an earlier run when reused).
-  const real = (await repo.findArtifactsByName(artifact.name)).find((a) => a.id === artifact.id);
+  const real = (await repo.storage.findByName(artifact.name)).find((a) => a.id === artifact.id);
   if (!real) throw new Error(`Artifact ${artifact.id} (${artifact.name}) not found in ${repo.repository}`);
   meta.artifact = { ...artifact, ...artifactInfo(real) };
   await publish(meta, repo);
@@ -427,10 +430,10 @@ async function cmdCleanup() {
   const reason = env.SIMPR_MERGED === 'true' ? 'merged' : 'closed';
   const repo = api();
 
-  const all = await repo.listArtifacts({ maxPages: intEnv('SIMPR_MAX_PAGES', 10) });
+  const all = await repo.storage.list({ maxPages: intEnv('SIMPR_MAX_PAGES', 10) });
   const mine = artifactsForPr(all, pr);
   for (const a of mine) {
-    await repo.deleteArtifact(a.id);
+    await repo.storage.delete(a.id);
     log(`Deleted ${a.name} (artifact ${a.id})`);
   }
 
@@ -450,7 +453,7 @@ async function cmdSweep() {
   const repo = api();
   const maxAgeDays = intEnv('SIMPR_MAX_AGE_DAYS', 30);
   const dryRun = env.SIMPR_DRY_RUN === 'true';
-  const all = await repo.listArtifacts({ maxPages: intEnv('SIMPR_MAX_PAGES', 50) });
+  const all = await repo.storage.list({ maxPages: intEnv('SIMPR_MAX_PAGES', 50) });
 
   const prStates = new Map();
   for (const pr of new Set(all.map((a) => parseArtifactName(a.name)?.pr).filter(Boolean))) {
@@ -466,7 +469,7 @@ async function cmdSweep() {
   const doomed = selectForSweep(all, { prStates, maxAgeDays, now: new Date() });
   for (const { artifact, reason } of doomed) {
     log(`${dryRun ? '[dry run] would delete' : 'Deleting'} ${artifact.name} (artifact ${artifact.id}): ${reason}`);
-    if (!dryRun) await repo.deleteArtifact(artifact.id);
+    if (!dryRun) await repo.storage.delete(artifact.id);
   }
 
   // Tell open PRs whose build is gone (retention or max age) how to rebuild.
@@ -480,7 +483,7 @@ async function cmdSweep() {
     const prev = parseState(existing?.body);
     if (!existing || prev?.status !== 'ready' || liveIds.has(prev.artifactId)) continue;
     // Not in the scanned pages: confirm with the API before declaring it gone.
-    const current = deletedIds.has(prev.artifactId) ? null : await repo.getArtifact(prev.artifactId);
+    const current = deletedIds.has(prev.artifactId) ? null : await repo.storage.get(prev.artifactId);
     if (current && !current.expired) continue;
     const reason = doomed.some((d) => d.artifact.id === prev.artifactId && d.reason === 'max-age') ? 'maxAge' : 'retention';
     log(`${dryRun ? '[dry run] would mark' : 'Marking'} PR #${pr} comment as expired (${reason}).`);

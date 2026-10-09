@@ -170,6 +170,8 @@ runs:
       with:
         path: ${{ steps.package.outputs.zip-path }}
         archive: false
+        # A re-run after the old build expired uploads the same name again.
+        overwrite: true
         retention-days: ${{ inputs.retention-days }}
         if-no-files-found: error
 

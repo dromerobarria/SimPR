@@ -7,4 +7,4 @@ SCRATCH="${SCRATCH:-$HOME/Library/Developer/SimPR-build}"
 swift test --package-path SimPRCore --scratch-path "$SCRATCH/core"
 if command -v xcodegen >/dev/null 2>&1; then xcodegen generate --spec project.yml >/dev/null; fi
 xcodebuild -project SimPR.xcodeproj -scheme SimPR -configuration Debug \
-  -derivedDataPath "$HOME/Library/Developer/Xcode/DerivedData/SimPR-cli" build | tail -1
+  -derivedDataPath "$HOME/Library/Developer/Xcode/DerivedData/SimPR-cli" build | grep -E "error:|BUILD (SUCCEEDED|FAILED)"
