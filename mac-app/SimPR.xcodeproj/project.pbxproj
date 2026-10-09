@@ -1,0 +1,396 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		53093EB2E14DA4CC8604DBC5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 87EB58D7ECB3BE26A5F3DE66 /* Assets.xcassets */; };
+		80C65828172CACF9E937D076 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32079F31073E279A3AE09B1 /* AppModel.swift */; };
+		885430084CA459775A30BFE1 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEB3400A87B4343CC487C349 /* SettingsView.swift */; };
+		939F6D7D8929A69DD80A833D /* RunPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A8E9DA8F8A8B5CB9A35096A /* RunPanel.swift */; };
+		97BDB782C829B3B68727F3F6 /* SimPRCore in Frameworks */ = {isa = PBXBuildFile; productRef = D40102E72496B206252BB10D /* SimPRCore */; };
+		BAD0802CB9D47B430B3B851D /* SimPRApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E4A42C0B90A9D2CB9B127D0 /* SimPRApp.swift */; };
+		C8F887AF42B9CE5F8A2646CC /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA48849F0ACB8D59D1D38D36 /* Preferences.swift */; };
+		CF786B5FC26B28040DA35AE7 /* MenuContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 736A3CCC5583DFFC72EE7FCD /* MenuContent.swift */; };
+		D1F9485EBFE512EF3FADF083 /* AuthModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F757FF05BFD21D74D617CB /* AuthModel.swift */; };
+		F7DDBBF6864CCC1267BD30F5 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A2FB8E6B6A7F075FCB978D /* LibraryView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		36F757FF05BFD21D74D617CB /* AuthModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthModel.swift; sourceTree = "<group>"; };
+		736A3CCC5583DFFC72EE7FCD /* MenuContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuContent.swift; sourceTree = "<group>"; };
+		7D55B5DC687640399BD7C8AF /* SimPR.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SimPR.entitlements; sourceTree = "<group>"; };
+		87EB58D7ECB3BE26A5F3DE66 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9A8E9DA8F8A8B5CB9A35096A /* RunPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunPanel.swift; sourceTree = "<group>"; };
+		9E4A42C0B90A9D2CB9B127D0 /* SimPRApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimPRApp.swift; sourceTree = "<group>"; };
+		AA48849F0ACB8D59D1D38D36 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
+		B32079F31073E279A3AE09B1 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		D742D4DAACF49A645DE0E192 /* SimPRCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SimPRCore; path = SimPRCore; sourceTree = SOURCE_ROOT; };
+		E0A2FB8E6B6A7F075FCB978D /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		F50AE21E53CB948E0EC99F0F /* SimPR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimPR.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FEB3400A87B4343CC487C349 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		80ADB592492DDDE93058BD5C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97BDB782C829B3B68727F3F6 /* SimPRCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		127F8D9436456DC2293671FA /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				D742D4DAACF49A645DE0E192 /* SimPRCore */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		3E639CB9924D757E71709C5F /* SimPR */ = {
+			isa = PBXGroup;
+			children = (
+				B32079F31073E279A3AE09B1 /* AppModel.swift */,
+				87EB58D7ECB3BE26A5F3DE66 /* Assets.xcassets */,
+				36F757FF05BFD21D74D617CB /* AuthModel.swift */,
+				AA48849F0ACB8D59D1D38D36 /* Preferences.swift */,
+				7D55B5DC687640399BD7C8AF /* SimPR.entitlements */,
+				9E4A42C0B90A9D2CB9B127D0 /* SimPRApp.swift */,
+				AA54B36A285C6F6D5F4D2317 /* Views */,
+			);
+			path = SimPR;
+			sourceTree = "<group>";
+		};
+		A50DEE742BE5B16FB216F566 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F50AE21E53CB948E0EC99F0F /* SimPR.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA54B36A285C6F6D5F4D2317 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				E0A2FB8E6B6A7F075FCB978D /* LibraryView.swift */,
+				736A3CCC5583DFFC72EE7FCD /* MenuContent.swift */,
+				9A8E9DA8F8A8B5CB9A35096A /* RunPanel.swift */,
+				FEB3400A87B4343CC487C349 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DCD561CA2752B8E4DCA9826D = {
+			isa = PBXGroup;
+			children = (
+				127F8D9436456DC2293671FA /* Packages */,
+				3E639CB9924D757E71709C5F /* SimPR */,
+				A50DEE742BE5B16FB216F566 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		27680E527EF8EB757F18996E /* SimPR */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1FE48184A0EBFE346161A4F6 /* Build configuration list for PBXNativeTarget "SimPR" */;
+			buildPhases = (
+				36CDAEFBB82BA6E3E1FF048C /* Sources */,
+				507465C3E0F21E7F3490F05D /* Resources */,
+				80ADB592492DDDE93058BD5C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SimPR;
+			packageProductDependencies = (
+				D40102E72496B206252BB10D /* SimPRCore */,
+			);
+			productName = SimPR;
+			productReference = F50AE21E53CB948E0EC99F0F /* SimPR.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B54D41FFD8B4D20717CE7BB8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					27680E527EF8EB757F18996E = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = 21A9420E368B02B410A21C98 /* Build configuration list for PBXProject "SimPR" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = DCD561CA2752B8E4DCA9826D;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				BBB35F9630FE1B2C78F98E53 /* XCLocalSwiftPackageReference "SimPRCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A50DEE742BE5B16FB216F566 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				27680E527EF8EB757F18996E /* SimPR */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		507465C3E0F21E7F3490F05D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53093EB2E14DA4CC8604DBC5 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		36CDAEFBB82BA6E3E1FF048C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80C65828172CACF9E937D076 /* AppModel.swift in Sources */,
+				D1F9485EBFE512EF3FADF083 /* AuthModel.swift in Sources */,
+				F7DDBBF6864CCC1267BD30F5 /* LibraryView.swift in Sources */,
+				CF786B5FC26B28040DA35AE7 /* MenuContent.swift in Sources */,
+				C8F887AF42B9CE5F8A2646CC /* Preferences.swift in Sources */,
+				939F6D7D8929A69DD80A833D /* RunPanel.swift in Sources */,
+				885430084CA459775A30BFE1 /* SettingsView.swift in Sources */,
+				BAD0802CB9D47B430B3B851D /* SimPRApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		68C122D21E577AFF1B768C63 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SimPR/SimPR.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SimPR/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.danielromero.SimPR;
+				PRODUCT_NAME = SimPR;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		CD021202B6956DC784F3FB80 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SIMPR_GITHUB_CLIENT_ID = "";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		E516F736778CCB80BC1CAE40 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SimPR/SimPR.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SimPR/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.danielromero.SimPR;
+				PRODUCT_NAME = SimPR;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		EE244EF4EABAEBED56DB730F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SIMPR_GITHUB_CLIENT_ID = "";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1FE48184A0EBFE346161A4F6 /* Build configuration list for PBXNativeTarget "SimPR" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				68C122D21E577AFF1B768C63 /* Debug */,
+				E516F736778CCB80BC1CAE40 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		21A9420E368B02B410A21C98 /* Build configuration list for PBXProject "SimPR" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CD021202B6956DC784F3FB80 /* Debug */,
+				EE244EF4EABAEBED56DB730F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		BBB35F9630FE1B2C78F98E53 /* XCLocalSwiftPackageReference "SimPRCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = SimPRCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D40102E72496B206252BB10D /* SimPRCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SimPRCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = B54D41FFD8B4D20717CE7BB8 /* Project object */;
+}

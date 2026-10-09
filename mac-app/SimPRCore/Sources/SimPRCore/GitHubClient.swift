@@ -179,6 +179,26 @@ public final class GitHubClient: ArtifactFetching, Sendable {
 
     private func repoPath(_ repo: RepoID) -> String { "repos/\(repo.owner)/\(repo.name)" }
 
+    public struct Viewer: Sendable, Equatable {
+        public var login: String
+        /// Classic OAuth scopes, from `X-OAuth-Scopes`. Nil for tokens that don't report them.
+        public var scopes: [String]?
+        public var canReadPrivateRepos: Bool { scopes.map { $0.contains("repo") } ?? true }
+    }
+
+    /// The signed-in user, used to confirm a token works.
+    public func viewer() async throws -> Viewer {
+        let req = try await request("user")
+        let (data, response) = try await session.data(for: req)
+        guard let http = response as? HTTPURLResponse else { throw GitHubError.network("Invalid response") }
+        guard http.statusCode == 200 else { throw Self.error(for: http, data: data, repo: RepoID("github/github")!) }
+        struct User: Decodable { var login: String }
+        let scopes = http.value(forHTTPHeaderField: "x-oauth-scopes").map {
+            $0.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        }
+        return Viewer(login: try JSONDecoder().decode(User.self, from: data).login, scopes: scopes)
+    }
+
     public func artifact(_ repo: RepoID, id: Int64) async throws -> ArtifactInfo {
         try await get(ArtifactInfo.self, "\(repoPath(repo))/actions/artifacts/\(id)", repo: repo)
     }

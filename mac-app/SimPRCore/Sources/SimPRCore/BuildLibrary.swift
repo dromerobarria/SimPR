@@ -114,7 +114,7 @@ extension BuildRecord {
 /// `~/Library/Application Support/SimPR/Builds/<owner>/<repo>/<sha>/` holds the .app and simpr.json,
 /// and `library.json` indexes them. Running a stored build never touches the network.
 public actor BuildLibrary {
-    public let root: URL
+    public nonisolated let root: URL
     private let buildsDir: URL
     private let indexURL: URL
     private var records: [String: BuildRecord] = [:]

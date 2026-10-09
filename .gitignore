@@ -8,3 +8,4 @@ build/
 xcuserdata/
 /dist/
 *.dmg
+SimPR.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
