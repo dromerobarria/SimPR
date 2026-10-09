@@ -38,21 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: xcodebuild -version && swift --version && sysctl -n hw.ncpu
-      - run: swift build --build-tests
-      - name: Run tests, one suite at a time
-        run: |
-          status=0
-          for suite in RunRequestTests ManifestTests OSVersionTests DeviceFlowTests ProcessRunnerTests \
-                       SimctlParserTests CompatibilityTests LibraryTests EvictionPolicyTests LibraryQueryTests PipelineTests; do
-            echo "::group::$suite"
-            # perl's alarm gives each suite a hard 3-minute limit.
-            if ! perl -e 'alarm 180; exec @ARGV' swift test --skip-build --disable-xctest --filter "$suite"; then
-              echo "::error::$suite failed or timed out"
-              status=1
-            fi
-            echo "::endgroup::"
-          done
-          exit $status
+      - run: swift test
 
   lint:
     name: Lint workflows and scripts

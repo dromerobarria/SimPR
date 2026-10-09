@@ -48,13 +48,10 @@ extension ProcessRunning {
 public struct ProcessRunner: ProcessRunning {
     public init() {}
 
+    /// Never blocks a thread: output is collected by readability handlers and the
+    /// result is delivered when both pipes hit EOF and the process has exited.
+    /// (Blocking waits here deadlocked on machines with few cores.)
     public func run(_ executable: URL, _ arguments: [String], environment: [String: String]?) async throws -> ProcessResult {
-        try await Task.detached(priority: .userInitiated) {
-            try Self.runBlocking(executable, arguments, environment: environment)
-        }.value
-    }
-
-    static func runBlocking(_ executable: URL, _ arguments: [String], environment: [String: String]?) throws -> ProcessResult {
         let process = Process()
         process.executableURL = executable
         process.arguments = arguments
@@ -66,30 +63,53 @@ public struct ProcessRunner: ProcessRunning {
         process.standardOutput = out
         process.standardError = err
         process.standardInput = FileHandle.nullDevice
-        try process.run()
 
-        // Drain both pipes concurrently so a chatty tool can't fill one and deadlock.
-        let group = DispatchGroup()
-        nonisolated(unsafe) var outData = Data()
-        nonisolated(unsafe) var errData = Data()
-        group.enter()
-        DispatchQueue.global().async {
-            outData = out.fileHandleForReading.readDataToEndOfFile()
-            group.leave()
+        let outData = LockedData()
+        let errData = LockedData()
+
+        return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<ProcessResult, Error>) in
+            let group = DispatchGroup()
+            for (pipe, buffer) in [(out, outData), (err, errData)] {
+                group.enter()
+                pipe.fileHandleForReading.readabilityHandler = { handle in
+                    let chunk = handle.availableData
+                    if chunk.isEmpty {
+                        handle.readabilityHandler = nil
+                        group.leave()
+                    } else {
+                        buffer.append(chunk)
+                    }
+                }
+            }
+            group.enter()
+            process.terminationHandler = { _ in group.leave() }
+
+            do {
+                try process.run()
+            } catch {
+                out.fileHandleForReading.readabilityHandler = nil
+                err.fileHandleForReading.readabilityHandler = nil
+                process.terminationHandler = nil
+                continuation.resume(throwing: error)
+                return
+            }
+            group.notify(queue: .global()) {
+                continuation.resume(returning: ProcessResult(
+                    status: process.terminationStatus,
+                    stdout: String(decoding: outData.value, as: UTF8.self),
+                    stderr: String(decoding: errData.value, as: UTF8.self)
+                ))
+            }
         }
-        group.enter()
-        DispatchQueue.global().async {
-            errData = err.fileHandleForReading.readDataToEndOfFile()
-            group.leave()
-        }
-        group.wait()
-        process.waitUntilExit()
-        return ProcessResult(
-            status: process.terminationStatus,
-            stdout: String(decoding: outData, as: UTF8.self),
-            stderr: String(decoding: errData, as: UTF8.self)
-        )
     }
+}
+
+private final class LockedData: @unchecked Sendable {
+    private let lock = NSLock()
+    private var data = Data()
+
+    func append(_ chunk: Data) { lock.withLock { data.append(chunk) } }
+    var value: Data { lock.withLock { data } }
 }
 
 public enum Tools {
