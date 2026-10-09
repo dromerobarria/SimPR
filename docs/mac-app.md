@@ -19,10 +19,11 @@ GitHub requires a token to download build artifacts, even from public repositori
 
 - Click **Run in iOS Simulator** on a PR. The first time, SimPR asks whether to trust the repository.
 - The run panel shows progress. If you haven't chosen a simulator yet, it lists compatible ones (booted iPhones first) and can remember your choice.
-- **Menu:** the five most recent builds ("Run again"), Open Library…, the preferred simulator, "Reset App Data Before Launch", and sign-in state.
+- **Menu:** the five most recent builds (each with "Run again" and "Run on…"), Open Library…, the **Simulator** picker ("Ask each time" or a fixed default), the **Xcode** picker (shown when more than one Xcode is installed), "Reset App Data Before Launch", and sign-in state.
+- **Choosing at run time:** with "Ask each time", the run panel lists compatible simulators, plus an Xcode picker when you have several. Switching Xcode reloads its simulators. Tick "Use this simulator next time" to make the choice your default.
 - **Library** (⌘L from the menu): builds grouped by repo and PR, newest commit first. Search accepts `owner/repo`, `#123`, branch names or SHA prefixes. Per build: Run, Run on…, Pin/Unpin, Reveal in Finder, Open PR on GitHub, Copy Commit SHA, Delete. The footer shows the total size and the bulk actions. The toolbar can import a zip you downloaded by hand.
 - **Settings › Library:** size limit (default 5 GB). Over the limit, the oldest unpinned builds are deleted. Pinned builds are never deleted automatically.
-- **Settings › General › Xcode:** which Xcode's `simctl` to use. By default SimPR uses `xcode-select`, or the newest `/Applications/Xcode*.app` if `xcode-select` points at the Command Line Tools.
+- **Settings › General › Xcode:** which Xcode's `simctl` to use. "Automatic" uses `xcode-select`, or, if that points at the Command Line Tools, the newest *release* `/Applications/Xcode*.app` (betas only if nothing else is installed). Xcode 27 betas don't include Simulator.app, so SimPR falls back to any installed Simulator, or to DeviceHub, to show the window.
 
 ## Error messages
 
