@@ -17,7 +17,7 @@ struct ContentView: View {
             Image(systemName: "iphone.gen3")
                 .font(.system(size: 64))
                 .foregroundStyle(.tint)
-            Text("SimPR Sample")
+            Text("SimPR Sample v2")
                 .font(.largeTitle.bold())
             Text("Opened from a pull request with “Run in iOS Simulator”.")
                 .multilineTextAlignment(.center)
