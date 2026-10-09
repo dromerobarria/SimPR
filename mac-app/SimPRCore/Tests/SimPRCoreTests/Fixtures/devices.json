@@ -1,0 +1,102 @@
+{
+  "devices": {
+    "com.apple.CoreSimulator.SimRuntime.iOS-27-0": [
+      {
+        "dataPath": "/Users/tester/Library/Developer/CoreSimulator/Devices/1604E01D-9679-40B1-B976-855DBB08AC87/data",
+        "logPath": "/Users/tester/Library/Logs/CoreSimulator/1604E01D-9679-40B1-B976-855DBB08AC87",
+        "udid": "1604E01D-9679-40B1-B976-855DBB08AC87",
+        "isAvailable": true,
+        "deviceTypeIdentifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro",
+        "state": "Shutdown",
+        "name": "iPhone 18 Pro"
+      },
+      {
+        "dataPath": "/Users/tester/Library/Developer/CoreSimulator/Devices/5877F83B-9DFB-46A6-8014-D2F8A43FC347/data",
+        "logPath": "/Users/tester/Library/Logs/CoreSimulator/5877F83B-9DFB-46A6-8014-D2F8A43FC347",
+        "udid": "5877F83B-9DFB-46A6-8014-D2F8A43FC347",
+        "isAvailable": true,
+        "deviceTypeIdentifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-Air",
+        "state": "Shutdown",
+        "name": "iPhone Air"
+      },
+      {
+        "dataPath": "/Users/tester/Library/Developer/CoreSimulator/Devices/9A4DBBF8-D078-489D-9751-2B7620775147/data",
+        "logPath": "/Users/tester/Library/Logs/CoreSimulator/9A4DBBF8-D078-489D-9751-2B7620775147",
+        "udid": "9A4DBBF8-D078-489D-9751-2B7620775147",
+        "isAvailable": true,
+        "deviceTypeIdentifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-17",
+        "state": "Shutdown",
+        "name": "iPhone 17"
+      }
+    ],
+    "com.apple.CoreSimulator.SimRuntime.iOS-27-1": [
+      {
+        "dataPath": "/Users/tester/Library/Developer/CoreSimulator/Devices/83AE7FCE-38BA-4BD1-AAD6-28D981E91552/data",
+        "logPath": "/Users/tester/Library/Logs/CoreSimulator/83AE7FCE-38BA-4BD1-AAD6-28D981E91552",
+        "udid": "83AE7FCE-38BA-4BD1-AAD6-28D981E91552",
+        "isAvailable": true,
+        "deviceTypeIdentifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-Duo",
+        "state": "Shutdown",
+        "name": "iPhone Duo"
+      }
+    ],
+    "com.apple.CoreSimulator.SimRuntime.iOS-26-5": [
+      {
+        "dataPath": "/Users/tester/Library/Developer/CoreSimulator/Devices/4B36E53F-3649-42D9-BD26-FDEFF9554D25/data",
+        "logPath": "/Users/tester/Library/Logs/CoreSimulator/4B36E53F-3649-42D9-BD26-FDEFF9554D25",
+        "udid": "4B36E53F-3649-42D9-BD26-FDEFF9554D25",
+        "lastUsedAt": "2026-10-08T21:16:47Z",
+        "isAvailable": true,
+        "logPathSize": 733184,
+        "deviceTypeIdentifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
+        "state": "Booted",
+        "name": "iPhone 17 Pro"
+      },
+      {
+        "dataPath": "/Users/tester/Library/Developer/CoreSimulator/Devices/00493EEF-16C5-4306-BCAB-F4EEC684907A/data",
+        "logPath": "/Users/tester/Library/Logs/CoreSimulator/00493EEF-16C5-4306-BCAB-F4EEC684907A",
+        "udid": "00493EEF-16C5-4306-BCAB-F4EEC684907A",
+        "isAvailable": true,
+        "deviceTypeIdentifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-Air",
+        "state": "Shutdown",
+        "name": "iPhone Air"
+      },
+      {
+        "dataPath": "/Users/tester/Library/Developer/CoreSimulator/Devices/8E84D3C5-343C-4579-B757-02A9BB3D7128/data",
+        "logPath": "/Users/tester/Library/Logs/CoreSimulator/8E84D3C5-343C-4579-B757-02A9BB3D7128",
+        "udid": "8E84D3C5-343C-4579-B757-02A9BB3D7128",
+        "isAvailable": true,
+        "deviceTypeIdentifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-17",
+        "state": "Shutdown",
+        "name": "iPhone 17"
+      },
+      {
+        "udid": "00000000-0000-0000-0000-00000000DEAD",
+        "isAvailable": false,
+        "availabilityError": "runtime profile not found",
+        "deviceTypeIdentifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-15",
+        "state": "Shutdown",
+        "name": "iPhone 15 (broken)"
+      }
+    ],
+    "com.apple.CoreSimulator.SimRuntime.iOS-17-5": [
+      {
+        "udid": "11111111-1111-1111-1111-111111111111",
+        "isAvailable": false,
+        "availabilityError": "runtime profile not found",
+        "deviceTypeIdentifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-15",
+        "state": "Shutdown",
+        "name": "iPhone 15"
+      }
+    ],
+    "com.apple.CoreSimulator.SimRuntime.watchOS-26-0": [
+      {
+        "udid": "22222222-2222-2222-2222-222222222222",
+        "isAvailable": true,
+        "deviceTypeIdentifier": "com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-11-46mm",
+        "state": "Shutdown",
+        "name": "Apple Watch Series 11 (46mm)"
+      }
+    ]
+  }
+}

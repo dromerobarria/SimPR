@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "bundleId": "dev.simpr.SampleApp",
+  "appName": "Sample App",
+  "appBundleName": "SampleApp.app",
+  "folderName": "Sample-App-PR42-0123456",
+  "version": "1.2",
+  "buildNumber": "34",
+  "minimumOSVersion": "17.0",
+  "architectures": ["x86_64", "arm64"],
+  "xcodeVersion": "26.6",
+  "xcodeBuild": "17F113",
+  "sdkVersion": "26.5",
+  "configuration": "Debug",
+  "scheme": "SampleApp",
+  "repository": "octo/sample",
+  "prNumber": 42,
+  "commitSha": "0123456789abcdef0123456789abcdef01234567",
+  "contentKey": "0123456789abcdef",
+  "buildDate": "2026-10-09T12:34:56.789Z",
+  "appSizeBytes": 2500000
+}
