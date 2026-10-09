@@ -1,0 +1,19 @@
+# Deletes the example app's builds when a PR is merged or closed.
+# pull_request_target is safe here: nothing from the PR is checked out or run.
+name: SimPR cleanup
+
+on:
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./action/cleanup

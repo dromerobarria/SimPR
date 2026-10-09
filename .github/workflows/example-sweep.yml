@@ -1,0 +1,25 @@
+name: SimPR sweep
+
+on:
+  schedule:
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        type: boolean
+        default: true
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./action/sweep
+        with:
+          max-age-days: 30
+          dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run || false }}

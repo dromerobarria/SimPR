@@ -1,0 +1,25 @@
+name: SimPR cleanup
+description: Delete every simulator build of a merged or closed PR and mark its comment as expired.
+inputs:
+  pr-number:
+    description: Pull request number.
+    default: ${{ github.event.pull_request.number }}
+  merged:
+    description: '"true" if the PR was merged.'
+    default: ${{ github.event.pull_request.merged }}
+  comment-author:
+    description: Login that owns the sticky comment, when using a token other than GITHUB_TOKEN.
+    required: false
+  github-token:
+    description: Token with actions:write and pull-requests:write.
+    default: ${{ github.token }}
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: node "$GITHUB_ACTION_PATH/../src/simpr.mjs" cleanup
+      env:
+        SIMPR_TOKEN: ${{ inputs.github-token }}
+        SIMPR_PR: ${{ inputs.pr-number }}
+        SIMPR_MERGED: ${{ inputs.merged }}
+        SIMPR_COMMENT_AUTHOR: ${{ inputs.comment-author }}

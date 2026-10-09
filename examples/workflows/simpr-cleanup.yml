@@ -1,0 +1,15 @@
+# Copy to .github/workflows/simpr-cleanup.yml.
+# Deletes a PR's builds when it is merged or closed and marks the comment as expired.
+# pull_request_target is safe here: the job never checks out or runs PR code.
+name: SimPR cleanup
+
+on:
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  simpr:
+    permissions:
+      actions: write
+      pull-requests: write
+    uses: dromerobarria/SimPR/.github/workflows/simpr-cleanup.yml@v1

@@ -1,0 +1,36 @@
+# End-to-end test of SimPR on this repository: builds examples/SampleApp for
+# every PR that touches it (or the action) and comments with a run button.
+name: SimPR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'examples/SampleApp/**'
+      - 'action/**'
+      - '.github/workflows/example-app.yml'
+
+jobs:
+  simpr:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    concurrency:
+      group: simpr-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      actions: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: ./action
+        with:
+          project: examples/SampleApp/SampleApp.xcodeproj
+          scheme: SampleApp
+          app-paths: |
+            examples/SampleApp
+          redirect-base-url: https://dromerobarria.github.io/SimPR/
+          mode: ${{ github.event.pull_request.head.repo.full_name == github.repository && 'full' || 'build' }}

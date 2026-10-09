@@ -1,0 +1,11 @@
+{
+  "name": "simpr-action",
+  "private": true,
+  "type": "module",
+  "description": "SimPR GitHub Action scripts. No runtime dependencies.",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

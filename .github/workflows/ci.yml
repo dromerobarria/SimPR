@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  action:
+    name: Action tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: node --version
+      - run: npm test
+        working-directory: action
+
+  web:
+    name: Redirect page tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: npm test
+        working-directory: web
+
+  mac-app:
+    name: Mac app tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: swift test
+        working-directory: mac-app/SimPRCore
+
+  lint:
+    name: Lint workflows and scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: actionlint
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12
+          ./actionlint -color
+      - name: shellcheck
+        run: shellcheck action/scripts/*.sh mac-app/Scripts/*.sh

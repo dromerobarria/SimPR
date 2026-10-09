@@ -1,0 +1,207 @@
+name: SimPR build
+description: Build an iOS Simulator app for a pull request and post a "Run in iOS Simulator" button on it.
+author: SimPR contributors
+branding:
+  icon: smartphone
+  color: blue
+
+inputs:
+  workspace:
+    description: Path to the .xcworkspace. Set this or `project`.
+    required: false
+  project:
+    description: Path to the .xcodeproj. Set this or `workspace`.
+    required: false
+  scheme:
+    description: Scheme to build.
+    required: true
+  configuration:
+    description: Build configuration.
+    default: Debug
+  app-paths:
+    description: >
+      Repository paths (newline or comma separated) whose contents affect the app. They are hashed,
+      together with any Package.resolved / Podfile.lock / Cartfile.resolved in the repo, into the
+      content key. Pushes that don't change them reuse the existing build. Default: the whole repository.
+    default: .
+  keep-builds:
+    description: How many builds to keep per PR (the newest are kept).
+    default: '1'
+  extra-xcodebuild-args:
+    description: Extra xcodebuild arguments, split like a shell would (quotes allowed, nothing is expanded).
+    required: false
+  redirect-base-url:
+    description: URL of the SimPR redirect page (the /web folder on GitHub Pages).
+    default: https://dromerobarria.github.io/SimPR/
+  mode:
+    description: >
+      `full` builds and comments (same-repo PRs). `build` only builds and uploads simpr-meta.json,
+      for the fork-safe pattern where a `workflow_run` workflow comments (see docs/forks.md).
+    default: full
+  archs:
+    description: Simulator architectures. The default builds a universal binary and falls back to arm64 only.
+    default: arm64 x86_64
+  app-name:
+    description: Name of the .app to package, without extension, when the scheme builds several.
+    required: false
+  retention-days:
+    description: Artifact retention in days (0 uses the repository default; GitHub caps public repos at 90).
+    default: '0'
+  working-directory:
+    description: Directory to run xcodebuild in.
+    default: .
+  pr-number:
+    description: Pull request number. Defaults to the pull_request event's number.
+    required: false
+  commit-sha:
+    description: Commit being built. Defaults to the pull request head SHA.
+    required: false
+  key-salt:
+    description: Extra string mixed into the content key. Change it to force a rebuild.
+    required: false
+  comment-author:
+    description: Login that owns the sticky comment, when using a token other than GITHUB_TOKEN.
+    required: false
+  github-token:
+    description: Token used to read and delete artifacts and to comment.
+    default: ${{ github.token }}
+
+outputs:
+  content-key:
+    description: Content key of this build.
+    value: ${{ steps.key.outputs.content-key }}
+  artifact-name:
+    description: Name of the build artifact.
+    value: ${{ steps.key.outputs.artifact-name }}
+  artifact-id:
+    description: ID of the build artifact (new or reused).
+    value: ${{ steps.upload.outputs.artifact-id || fromJSON(steps.existing.outputs.artifact-json || '{}').id }}
+  reused:
+    description: '"true" when an existing build with the same content key was reused.'
+    value: ${{ steps.existing.outputs.exists }}
+  manifest-path:
+    description: Path of the simpr.json manifest for this build.
+    value: ${{ steps.package.outputs.manifest-path || steps.existing.outputs.manifest-path }}
+  comment-url:
+    description: URL of the sticky comment (full mode).
+    value: ${{ steps.publish.outputs.comment-url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check environment
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" != "macOS" ]]; then
+          echo "::error::SimPR builds need a macOS runner (runs-on: macos-latest)."
+          exit 1
+        fi
+        if [[ -z "$SIMPR_PR" ]]; then
+          echo "::error::No pull request number. Run on pull_request or set the pr-number input."
+          exit 1
+        fi
+        if [[ "$SIMPR_MODE" != "full" && "$SIMPR_MODE" != "build" ]]; then
+          echo "::error::mode must be 'full' or 'build'."
+          exit 1
+        fi
+        node --version
+        xcodebuild -version
+      env:
+        SIMPR_PR: ${{ inputs.pr-number || github.event.pull_request.number }}
+        SIMPR_MODE: ${{ inputs.mode }}
+
+    - name: Compute content key
+      id: key
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/src/simpr.mjs" key
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        SIMPR_PR: ${{ inputs.pr-number || github.event.pull_request.number }}
+        SIMPR_APP_PATHS: ${{ inputs.app-paths }}
+        SIMPR_WORKSPACE: ${{ inputs.workspace }}
+        SIMPR_PROJECT: ${{ inputs.project }}
+        SIMPR_SCHEME: ${{ inputs.scheme }}
+        SIMPR_CONFIGURATION: ${{ inputs.configuration }}
+        SIMPR_EXTRA_XCODEBUILD_ARGS: ${{ inputs.extra-xcodebuild-args }}
+        SIMPR_ARCHS: ${{ inputs.archs }}
+        SIMPR_KEY_SALT: ${{ inputs.key-salt }}
+
+    - name: Look for an existing build
+      id: existing
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/src/simpr.mjs" find-existing
+      env:
+        SIMPR_TOKEN: ${{ inputs.github-token }}
+        SIMPR_ARTIFACT_NAME: ${{ steps.key.outputs.artifact-name }}
+
+    - name: Build for iOS Simulator
+      id: build
+      if: steps.existing.outputs.exists != 'true'
+      shell: bash
+      run: '"$GITHUB_ACTION_PATH/scripts/build.sh"'
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        SIMPR_WORKSPACE: ${{ inputs.workspace }}
+        SIMPR_PROJECT: ${{ inputs.project }}
+        SIMPR_SCHEME: ${{ inputs.scheme }}
+        SIMPR_CONFIGURATION: ${{ inputs.configuration }}
+        SIMPR_EXTRA_XCODEBUILD_ARGS: ${{ inputs.extra-xcodebuild-args }}
+        SIMPR_ARCHS: ${{ inputs.archs }}
+        SIMPR_APP_NAME: ${{ inputs.app-name }}
+
+    - name: Package build
+      id: package
+      if: steps.existing.outputs.exists != 'true'
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/src/simpr.mjs" package
+      env:
+        SIMPR_APP_PATH: ${{ steps.build.outputs.app-path }}
+        SIMPR_OUTPUT_DIR: ${{ runner.temp }}/simpr-out
+        SIMPR_PR: ${{ inputs.pr-number || github.event.pull_request.number }}
+        SIMPR_SHA: ${{ inputs.commit-sha || github.event.pull_request.head.sha || github.sha }}
+        SIMPR_CONTENT_KEY: ${{ steps.key.outputs.content-key }}
+        SIMPR_SCHEME: ${{ inputs.scheme }}
+        SIMPR_CONFIGURATION: ${{ inputs.configuration }}
+
+    - name: Upload build
+      id: upload
+      if: steps.existing.outputs.exists != 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        path: ${{ steps.package.outputs.zip-path }}
+        archive: false
+        retention-days: ${{ inputs.retention-days }}
+        if-no-files-found: error
+
+    - name: Write build metadata
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/src/simpr.mjs" write-meta
+      env:
+        SIMPR_TOKEN: ${{ inputs.github-token }}
+        SIMPR_REUSED: ${{ steps.existing.outputs.exists }}
+        SIMPR_MANIFEST_PATH: ${{ steps.package.outputs.manifest-path || steps.existing.outputs.manifest-path }}
+        SIMPR_ARTIFACT_JSON: ${{ steps.existing.outputs.artifact-json }}
+        SIMPR_ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+        SIMPR_ZIP_PATH: ${{ steps.package.outputs.zip-path }}
+        SIMPR_META_PATH: ${{ runner.temp }}/simpr-meta/simpr-meta.json
+
+    - name: Upload build metadata (build mode)
+      if: inputs.mode == 'build'
+      uses: actions/upload-artifact@v7
+      with:
+        path: ${{ runner.temp }}/simpr-meta/simpr-meta.json
+        archive: false
+        retention-days: 1
+        if-no-files-found: error
+
+    - name: Comment on the pull request
+      id: publish
+      if: inputs.mode == 'full'
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/src/simpr.mjs" publish
+      env:
+        SIMPR_TOKEN: ${{ inputs.github-token }}
+        SIMPR_META_PATH: ${{ runner.temp }}/simpr-meta/simpr-meta.json
+        SIMPR_REDIRECT_BASE_URL: ${{ inputs.redirect-base-url }}
+        SIMPR_KEEP_BUILDS: ${{ inputs.keep-builds }}
+        SIMPR_COMMENT_AUTHOR: ${{ inputs.comment-author }}

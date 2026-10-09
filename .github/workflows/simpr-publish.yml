@@ -1,0 +1,34 @@
+# Reusable workflow: comment on fork PRs (the trusted half of the workflow_run pattern).
+#
+#   on:
+#     workflow_run:
+#       workflows: [SimPR]        # the name of your build workflow
+#       types: [completed]
+#   jobs:
+#     simpr:
+#       if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+#       uses: dromerobarria/SimPR/.github/workflows/simpr-publish.yml@v1
+#
+# This job never checks out or runs PR code. It reads simpr-meta.json from the
+# build run as data and checks it against the PR head SHA before commenting.
+name: SimPR publish
+
+on:
+  workflow_call:
+    inputs:
+      redirect-base-url: { type: string, default: 'https://dromerobarria.github.io/SimPR/' }
+      keep-builds: { type: number, default: 1 }
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: write
+      pull-requests: write
+    steps:
+      - uses: dromerobarria/SimPR/action/publish@v1
+        with:
+          source-run-id: ${{ github.event.workflow_run.id }}
+          redirect-base-url: ${{ inputs.redirect-base-url }}
+          keep-builds: ${{ inputs.keep-builds }}

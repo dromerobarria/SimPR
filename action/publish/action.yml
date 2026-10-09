@@ -1,0 +1,36 @@
+name: SimPR publish
+description: >
+  Trusted half of the fork-safe pattern. Run from a workflow_run workflow to comment on a PR
+  whose simulator build ran in an untrusted pull_request run (mode: build). Never checks out PR code.
+inputs:
+  source-run-id:
+    description: ID of the pull_request run that built the app.
+    default: ${{ github.event.workflow_run.id }}
+  redirect-base-url:
+    description: URL of the SimPR redirect page.
+    default: https://dromerobarria.github.io/SimPR/
+  keep-builds:
+    description: How many builds to keep per PR.
+    default: '1'
+  comment-author:
+    description: Login that owns the sticky comment, when using a token other than GITHUB_TOKEN.
+    required: false
+  github-token:
+    description: Token with actions:write and pull-requests:write.
+    default: ${{ github.token }}
+outputs:
+  comment-url:
+    description: URL of the sticky comment.
+    value: ${{ steps.publish.outputs.comment-url }}
+runs:
+  using: composite
+  steps:
+    - id: publish
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/../src/simpr.mjs" publish-from-run
+      env:
+        SIMPR_TOKEN: ${{ inputs.github-token }}
+        SIMPR_SOURCE_RUN_ID: ${{ inputs.source-run-id }}
+        SIMPR_REDIRECT_BASE_URL: ${{ inputs.redirect-base-url }}
+        SIMPR_KEEP_BUILDS: ${{ inputs.keep-builds }}
+        SIMPR_COMMENT_AUTHOR: ${{ inputs.comment-author }}

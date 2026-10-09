@@ -1,0 +1,30 @@
+# Copy to .github/workflows/simpr.yml in your app's repository.
+name: SimPR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    # Don't start a macOS runner for pushes that can't change the app.
+    # (Pushes that do start a run but don't change app-paths reuse the existing build.)
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - 'fastlane/metadata/**'
+
+jobs:
+  simpr:
+    permissions:
+      contents: read
+      actions: write        # upload and delete builds
+      pull-requests: write  # the sticky comment
+    uses: dromerobarria/SimPR/.github/workflows/simpr-build.yml@v1
+    with:
+      project: MyApp.xcodeproj        # or: workspace: MyApp.xcworkspace
+      scheme: MyApp
+      # Paths whose contents affect the app. Lockfiles are always included.
+      app-paths: |
+        MyApp
+        MyAppKit
+        MyApp.xcodeproj
+      # redirect-base-url: https://<you>.github.io/<repo>/   # your own copy of /web, optional

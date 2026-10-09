@@ -1,0 +1,82 @@
+# Reusable workflow: build the PR's app for the iOS Simulator and comment with a run button.
+#
+#   jobs:
+#     simpr:
+#       uses: dromerobarria/SimPR/.github/workflows/simpr-build.yml@v1
+#       with:
+#         project: MyApp.xcodeproj
+#         scheme: MyApp
+#
+# Fork PRs get a read-only token, so this switches to `mode: build` for them automatically.
+# Add simpr-publish.yml (workflow_run) to comment on fork PRs. See docs/forks.md.
+name: SimPR build
+
+on:
+  workflow_call:
+    inputs:
+      workspace: { type: string, required: false }
+      project: { type: string, required: false }
+      scheme: { type: string, required: true }
+      configuration: { type: string, default: Debug }
+      app-paths: { type: string, default: . }
+      keep-builds: { type: number, default: 1 }
+      extra-xcodebuild-args: { type: string, required: false }
+      redirect-base-url: { type: string, default: 'https://dromerobarria.github.io/SimPR/' }
+      archs: { type: string, default: arm64 x86_64 }
+      app-name: { type: string, required: false }
+      retention-days: { type: number, default: 0 }
+      working-directory: { type: string, default: . }
+      runs-on: { type: string, default: macos-latest }
+      xcode-path:
+        type: string
+        required: false
+        description: Xcode to use, for example /Applications/Xcode_26.0.app
+    outputs:
+      artifact-id:
+        value: ${{ jobs.build.outputs.artifact-id }}
+      reused:
+        value: ${{ jobs.build.outputs.reused }}
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runs-on }}
+    timeout-minutes: 60
+    concurrency:
+      group: simpr-${{ github.repository }}-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      actions: write
+      pull-requests: write
+    outputs:
+      artifact-id: ${{ steps.simpr.outputs.artifact-id }}
+      reused: ${{ steps.simpr.outputs.reused }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Build the PR head commit (not the merge commit), so the build matches the SHA reviewers see.
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Select Xcode
+        if: inputs.xcode-path != ''
+        run: sudo xcode-select -s "$XCODE_PATH"
+        env:
+          XCODE_PATH: ${{ inputs.xcode-path }}
+
+      - uses: dromerobarria/SimPR/action@v1
+        id: simpr
+        with:
+          workspace: ${{ inputs.workspace }}
+          project: ${{ inputs.project }}
+          scheme: ${{ inputs.scheme }}
+          configuration: ${{ inputs.configuration }}
+          app-paths: ${{ inputs.app-paths }}
+          keep-builds: ${{ inputs.keep-builds }}
+          extra-xcodebuild-args: ${{ inputs.extra-xcodebuild-args }}
+          redirect-base-url: ${{ inputs.redirect-base-url }}
+          archs: ${{ inputs.archs }}
+          app-name: ${{ inputs.app-name }}
+          retention-days: ${{ inputs.retention-days }}
+          working-directory: ${{ inputs.working-directory }}
+          mode: ${{ github.event.pull_request.head.repo.full_name == github.repository && 'full' || 'build' }}

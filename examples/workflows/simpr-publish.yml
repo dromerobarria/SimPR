@@ -1,0 +1,20 @@
+# Copy to .github/workflows/simpr-publish.yml if you accept PRs from forks.
+# Fork builds run with a read-only token and can't comment; this trusted workflow
+# comments for them. It never checks out or runs code from the PR.
+name: SimPR publish
+
+on:
+  workflow_run:
+    workflows: [SimPR]   # must match the `name:` of your build workflow
+    types: [completed]
+
+jobs:
+  simpr:
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.full_name != github.repository
+    permissions:
+      actions: write
+      pull-requests: write
+    uses: dromerobarria/SimPR/.github/workflows/simpr-publish.yml@v1

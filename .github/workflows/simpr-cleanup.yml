@@ -1,0 +1,33 @@
+# Reusable workflow: delete a PR's builds when it is merged or closed.
+#
+#   on:
+#     pull_request_target:
+#       types: [closed]
+#   jobs:
+#     simpr:
+#       uses: dromerobarria/SimPR/.github/workflows/simpr-cleanup.yml@v1
+#
+# pull_request_target is safe here: this job never checks out or runs PR code.
+# It is used so the token can delete artifacts and edit comments on fork PRs too.
+name: SimPR cleanup
+
+on:
+  workflow_call:
+    inputs:
+      pr-number:
+        type: number
+        required: false
+        description: Defaults to the triggering pull request.
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: write
+      pull-requests: write
+    steps:
+      - uses: dromerobarria/SimPR/action/cleanup@v1
+        with:
+          pr-number: ${{ inputs.pr-number || github.event.pull_request.number }}
+          merged: ${{ github.event.pull_request.merged }}

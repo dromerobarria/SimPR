@@ -1,0 +1,39 @@
+# Alternative to simpr.yml: call the composite action from your own job,
+# for example to add setup steps (CocoaPods, code generation, secrets for SPM).
+name: SimPR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths-ignore: ['**/*.md', 'docs/**']
+
+jobs:
+  simpr:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    concurrency:
+      group: simpr-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      actions: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      # - run: bundle exec pod install
+
+      - uses: dromerobarria/SimPR/action@v1
+        with:
+          workspace: MyApp.xcworkspace
+          scheme: MyApp
+          app-paths: |
+            MyApp
+            Pods
+          keep-builds: 1
+          extra-xcodebuild-args: -skipPackagePluginValidation -skipMacroValidation
+          # Fork PRs get a read-only token: build only, and let simpr-publish.yml comment.
+          mode: ${{ github.event.pull_request.head.repo.full_name == github.repository && 'full' || 'build' }}

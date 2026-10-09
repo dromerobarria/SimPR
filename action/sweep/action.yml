@@ -1,0 +1,25 @@
+name: SimPR sweep
+description: Delete orphaned simulator builds (PR closed, run missing, expired) and builds older than a maximum age.
+inputs:
+  max-age-days:
+    description: Delete builds older than this many days, even on open PRs (0 disables).
+    default: '30'
+  dry-run:
+    description: '"true" to only log what would be deleted.'
+    default: 'false'
+  comment-author:
+    description: Login that owns the sticky comment, when using a token other than GITHUB_TOKEN.
+    required: false
+  github-token:
+    description: Token with actions:write and pull-requests:write.
+    default: ${{ github.token }}
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: node "$GITHUB_ACTION_PATH/../src/simpr.mjs" sweep
+      env:
+        SIMPR_TOKEN: ${{ inputs.github-token }}
+        SIMPR_MAX_AGE_DAYS: ${{ inputs.max-age-days }}
+        SIMPR_DRY_RUN: ${{ inputs.dry-run }}
+        SIMPR_COMMENT_AUTHOR: ${{ inputs.comment-author }}

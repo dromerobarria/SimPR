@@ -1,0 +1,26 @@
+# Comments on fork PRs built by the "SimPR" workflow. Never checks out PR code.
+name: SimPR publish
+
+on:
+  workflow_run:
+    workflows: [SimPR]
+    types: [completed]
+
+jobs:
+  publish:
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.full_name != github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      pull-requests: write
+    steps:
+      # Checks out this repository's default branch (trusted code), never the PR.
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./action/publish
+        with:
+          redirect-base-url: https://dromerobarria.github.io/SimPR/
